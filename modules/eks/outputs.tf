@@ -351,3 +351,14 @@ output "cluster_summary" {
     ready_for_geodish_app = aws_eks_cluster.main.status == "ACTIVE"
   }
 }
+# Add to your existing modules/eks/outputs.tf
+
+output "cluster_oidc_provider_arn" {
+  description = "ARN of the OIDC Provider for the EKS cluster"
+  value       = aws_iam_openid_connect_provider.eks.arn
+}
+
+output "cluster_oidc_provider_url" {
+  description = "URL of the OIDC Provider for the EKS cluster"
+  value       = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
+}
