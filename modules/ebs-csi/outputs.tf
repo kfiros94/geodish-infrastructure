@@ -29,10 +29,7 @@ output "addon_version" {
   value       = aws_eks_addon.ebs_csi.addon_version
 }
 
-output "addon_status" {
-  description = "Status of the EBS CSI driver addon"
-  value       = aws_eks_addon.ebs_csi.status
-}
+# REMOVED: addon_status output (status attribute doesn't exist)
 
 #==========================================
 # Storage Configuration for Applications

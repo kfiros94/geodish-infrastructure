@@ -73,6 +73,16 @@ output "oidc_provider_url" {
   value       = var.enable_irsa ? replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "") : null
 }
 
+output "cluster_oidc_provider_arn" {
+  description = "ARN of the cluster OIDC provider"
+  value       = var.enable_irsa ? aws_iam_openid_connect_provider.cluster[0].arn : null
+}
+
+output "cluster_oidc_provider_url" {
+  description = "URL of the cluster OIDC provider"  
+  value       = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
 #==========================================
 # Node Group Outputs
 #==========================================
@@ -189,26 +199,21 @@ output "cluster_addons" {
     vpc-cni = {
       addon_name    = aws_eks_addon.vpc_cni.addon_name
       addon_version = aws_eks_addon.vpc_cni.addon_version
-      # Removed status - not available in AWS provider
     }
     coredns = {
       addon_name    = aws_eks_addon.coredns.addon_name
       addon_version = aws_eks_addon.coredns.addon_version
-      # Removed status - not available in AWS provider
     }
     kube-proxy = {
       addon_name    = aws_eks_addon.kube_proxy.addon_name
       addon_version = aws_eks_addon.kube_proxy.addon_version
-      # Removed status - not available in AWS provider
     }
     aws-ebs-csi-driver = var.enable_ebs_csi_driver ? {
       addon_name    = aws_eks_addon.ebs_csi_driver[0].addon_name
       addon_version = aws_eks_addon.ebs_csi_driver[0].addon_version
-      # Removed status - not available in AWS provider
     } : null
   }
 }
-
 
 #==========================================
 # Application Deployment Information
@@ -278,7 +283,7 @@ output "argocd_config" {
       namespace = "argocd"
       server    = "https://kubernetes.default.svc"
     }
-    source_repo_url = "https://github.com/YOUR_USERNAME/geodish-gitops.git"
+    source_repo_url = "https://github.com/kfiros94/geodish-gitops.git"
   }
 }
 
@@ -350,15 +355,4 @@ output "cluster_summary" {
     # Ready for deployment
     ready_for_geodish_app = aws_eks_cluster.main.status == "ACTIVE"
   }
-}
-# Add to your existing modules/eks/outputs.tf
-
-output "cluster_oidc_provider_arn" {
-  description = "ARN of the OIDC Provider for the EKS cluster"
-  value       = aws_iam_openid_connect_provider.eks.arn
-}
-
-output "cluster_oidc_provider_url" {
-  description = "URL of the OIDC Provider for the EKS cluster"
-  value       = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
 }
