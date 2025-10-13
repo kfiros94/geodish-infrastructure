@@ -320,3 +320,12 @@ variable "additional_tags" {
     AutoShutdown = "true"
   }
 }
+#==========================================
+# MongoDB Credentials
+#==========================================
+
+variable "mongodb_password" {
+  description = "MongoDB password (set via TF_VAR_mongodb_password environment variable)"
+  type        = string
+  sensitive   = true
+}

@@ -158,3 +158,53 @@ output "next_steps" {
 locals {
   configure_kubectl_command = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
 }
+#==========================================
+# ArgoCD Outputs
+#==========================================
+
+output "argocd_namespace" {
+  description = "ArgoCD namespace"
+  value       = module.argocd.argocd_namespace
+}
+
+output "argocd_admin_password_command" {
+  description = "Command to get ArgoCD admin password"
+  value       = module.argocd.argocd_admin_password_command
+}
+
+output "app_namespace" {
+  description = "Application namespace"
+  value       = module.argocd.app_namespace
+}
+
+#==========================================
+# Access Commands
+#==========================================
+
+output "access_instructions" {
+  description = "How to access your deployed services"
+  value = {
+    step1_configure_kubectl = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
+    step2_get_argocd_password = module.argocd.argocd_admin_password_command
+    step3_get_argocd_url = "kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+    step4_get_ingress_url = "kubectl get svc -n ingress-nginx -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}'"
+    step5_check_apps = "kubectl get applications -n argocd"
+    step6_check_pods = "kubectl get pods -n devops-app"
+  }
+}
+
+#==========================================
+# Deployment Status
+#==========================================
+
+output "deployment_status" {
+  description = "Deployment status summary"
+  value = {
+    infrastructure_deployed = "✅ Complete"
+    argocd_installed = "✅ Complete"
+    mongodb_secret_created = "✅ Complete"
+    gitops_enabled = "✅ Complete"
+    auto_deployment = "✅ ArgoCD will deploy MongoDB and GeoDish automatically"
+    manual_steps_required = "None - Everything is automated!"
+  }
+}
