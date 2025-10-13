@@ -38,7 +38,7 @@ module "iam" {
   tags = local.common_tags
 }
 
-# EKS Module
+# EKS Module (using your original working parameters)
 module "eks" {
   source = "../../modules/eks"
   
@@ -47,10 +47,10 @@ module "eks" {
   cluster_version       = var.cluster_version
   
   vpc_id                = module.vpc.vpc_id
-  private_subnet_ids    = module.vpc.private_subnet_ids
+  subnet_ids            = module.vpc.private_subnet_ids  # Fixed parameter name
   
   cluster_service_role_arn    = module.iam.cluster_service_role_arn
-  node_group_instance_role_arn = module.iam.node_group_instance_role_arn
+  node_group_role_arn        = module.iam.node_group_instance_role_arn  # Fixed parameter name
   
   node_group_instance_types = var.node_group_instance_types
   node_group_capacity_type  = var.node_group_capacity_type
@@ -74,7 +74,7 @@ module "ebs_csi" {
   depends_on = [module.eks]
 }
 
-# ADDED: ArgoCD Installation via Helm
+# ArgoCD Installation via Helm
 resource "helm_release" "argocd" {
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
@@ -99,11 +99,9 @@ resource "helm_release" "argocd" {
           "server.insecure" = true
         }
       }
-      # Disable notifications controller to reduce resource usage
       notifications = {
         enabled = false
       }
-      # Disable dex for simplicity
       dex = {
         enabled = false
       }
@@ -116,7 +114,13 @@ resource "helm_release" "argocd" {
   ]
 }
 
-# ADDED: GeoDish Root Application - Automatic GitOps Deployment
+# Wait for ArgoCD to be ready
+resource "time_sleep" "wait_for_argocd" {
+  depends_on = [helm_release.argocd]
+  create_duration = "60s"
+}
+
+# GeoDish Root Application
 resource "kubernetes_manifest" "geodish_root_app" {
   manifest = {
     apiVersion = "argoproj.io/v1alpha1"
@@ -147,50 +151,5 @@ resource "kubernetes_manifest" "geodish_root_app" {
     }
   }
   
-  depends_on = [
-    helm_release.argocd
-  ]
-}
-
-# ADDED: Wait for ArgoCD to be ready before deploying applications
-resource "time_sleep" "wait_for_argocd" {
-  depends_on = [helm_release.argocd]
-  
-  create_duration = "60s"
-}
-
-# Update the dependency for the root app
-resource "kubernetes_manifest" "geodish_root_app_final" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "geodish-root-app"
-      namespace = "argocd"
-      finalizers = ["resources-finalizer.argocd.argoproj.io"]
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = "https://github.com/kfiros94/geodish-gitops.git"
-        path           = "helm-charts/app-of-apps"
-        targetRevision = "HEAD"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "argocd"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-        syncOptions = ["CreateNamespace=true"]
-      }
-    }
-  }
-  
-  depends_on = [
-    time_sleep.wait_for_argocd
-  ]
+  depends_on = [time_sleep.wait_for_argocd]
 }
