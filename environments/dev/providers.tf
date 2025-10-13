@@ -53,13 +53,3 @@ provider "helm" {
     }
   }
 }
-
-# Local values for common tags
-locals {
-  common_tags = {
-    Project     = var.project_name
-    Environment = var.environment
-    ManagedBy   = "terraform"
-    Owner       = "devops-team"
-  }
-}
