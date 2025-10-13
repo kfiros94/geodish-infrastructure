@@ -1,6 +1,6 @@
 # environments/dev/main.tf
 
-# Local values for common tags
+# Local values for common tags  
 locals {
   common_tags = {
     Project     = var.project_name
@@ -38,7 +38,7 @@ module "iam" {
   tags = local.common_tags
 }
 
-# EKS Module (using your original working parameters)
+# EKS Module - Using exact parameters from your working version
 module "eks" {
   source = "../../modules/eks"
   
@@ -47,14 +47,14 @@ module "eks" {
   cluster_version       = var.cluster_version
   
   vpc_id                = module.vpc.vpc_id
-  subnet_ids            = module.vpc.private_subnet_ids  # Fixed parameter name
+  private_subnet_ids    = module.vpc.private_subnet_ids  # Your EKS module expects this exact name
   
   cluster_service_role_arn    = module.iam.cluster_service_role_arn
-  node_group_role_arn        = module.iam.node_group_instance_role_arn  # Fixed parameter name
+  node_group_instance_role_arn = module.iam.node_group_instance_role_arn
   
   node_group_instance_types = var.node_group_instance_types
   node_group_capacity_type  = var.node_group_capacity_type
-  node_group_scaling_config = var.node_group_scaling_config
+  # REMOVED: node_group_scaling_config - not supported by your module
   
   tags = local.common_tags
   
@@ -120,7 +120,7 @@ resource "time_sleep" "wait_for_argocd" {
   create_duration = "60s"
 }
 
-# GeoDish Root Application
+# GeoDish Root Application - Automatic GitOps Deployment
 resource "kubernetes_manifest" "geodish_root_app" {
   manifest = {
     apiVersion = "argoproj.io/v1alpha1"
