@@ -1,6 +1,60 @@
 # environments/dev/main.tf
 
-# Local values for common tags  
+terraform {
+  required_version = ">= 1.5.0"
+  
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = var.aws_region
+  
+  default_tags {
+    tags = local.common_tags
+  }
+}
+
+# Configure Kubernetes Provider
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+  }
+}
+
+# Configure Helm Provider  
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    }
+  }
+}
+
+# Local values for common tags
 locals {
   common_tags = {
     Project     = var.project_name
@@ -38,7 +92,7 @@ module "iam" {
   tags = local.common_tags
 }
 
-# EKS Module - Using exact parameters from your working version
+# EKS Module
 module "eks" {
   source = "../../modules/eks"
   
@@ -47,14 +101,14 @@ module "eks" {
   cluster_version       = var.cluster_version
   
   vpc_id                = module.vpc.vpc_id
-  private_subnet_ids    = module.vpc.private_subnet_ids  # Your EKS module expects this exact name
+  subnet_ids            = module.vpc.private_subnet_ids
   
   cluster_service_role_arn    = module.iam.cluster_service_role_arn
-  node_group_instance_role_arn = module.iam.node_group_instance_role_arn
+  node_group_role_arn        = module.iam.node_group_instance_role_arn
   
   node_group_instance_types = var.node_group_instance_types
   node_group_capacity_type  = var.node_group_capacity_type
-  # REMOVED: node_group_scaling_config - not supported by your module
+  node_group_scaling_config = var.node_group_scaling_config
   
   tags = local.common_tags
   
@@ -120,7 +174,7 @@ resource "time_sleep" "wait_for_argocd" {
   create_duration = "60s"
 }
 
-# GeoDish Root Application - Automatic GitOps Deployment
+# GeoDish Root Application
 resource "kubernetes_manifest" "geodish_root_app" {
   manifest = {
     apiVersion = "argoproj.io/v1alpha1"
