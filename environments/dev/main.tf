@@ -292,3 +292,30 @@ module "monitoring" {
   
   depends_on = [module.argocd, module.ebs_csi]
 }
+#==========================================
+# Logging Module (EFK Stack)
+#==========================================
+module "logging" {
+  source = "../../modules/logging"
+  
+  logging_namespace = "logging"
+  
+  # Elasticsearch configuration
+  elasticsearch_replicas      = 1
+  elasticsearch_storage_size  = "20Gi"
+  elasticsearch_memory_limit  = "2Gi"
+  elasticsearch_memory_request = "1Gi"
+  
+  # Fluentd configuration
+  fluentd_memory_limit = "512Mi"
+  
+  # Kibana configuration
+  kibana_replicas = 1
+  
+  # Retention
+  retention_days = 7
+  
+  tags = local.common_tags
+  
+  depends_on = [module.monitoring, module.ebs_csi]
+}
