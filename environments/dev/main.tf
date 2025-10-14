@@ -319,3 +319,27 @@ module "logging" {
   
   depends_on = [module.monitoring, module.ebs_csi]
 }
+#==========================================
+# Secrets Manager Module
+#==========================================
+module "secrets_manager" {
+  source = "../../modules/secrets-manager"
+  
+  project_name = local.project
+  environment  = local.environment
+  
+  # MongoDB password from variable
+  mongodb_password = var.mongodb_password
+  
+  # IRSA configuration from EKS
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  
+  # Kubernetes configuration
+  namespace            = "devops-app"
+  service_account_name = "geodish-secrets-sa"
+  
+  tags = local.common_tags
+  
+  depends_on = [module.eks, module.argocd]
+}
