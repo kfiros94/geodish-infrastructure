@@ -85,9 +85,9 @@ resource "kubernetes_secret" "mongodb_credentials" {
   }
 
   data = {
-    password         = base64encode(var.mongodb_password)
-    connectionString = base64encode("mongodb://${var.mongodb_username}:${var.mongodb_password}@geodish-mongodb-svc.${var.app_namespace}.svc.cluster.local:27017/${var.mongodb_database}?authSource=admin")
-  }
+  password         = var.mongodb_password
+  connectionString = "mongodb://${var.mongodb_username}:${var.mongodb_password}@geodish-mongodb-svc.${var.app_namespace}.svc.cluster.local:27017/${var.mongodb_database}?authSource=admin"
+}
 
   type = "Opaque"
 }

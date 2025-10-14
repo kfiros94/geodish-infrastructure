@@ -329,3 +329,42 @@ variable "mongodb_password" {
   type        = string
   sensitive   = true
 }
+#==========================================
+# ArgoCD Configuration
+#==========================================
+
+variable "argocd_chart_version" {
+  description = "Version of ArgoCD Helm chart"
+  type        = string
+  default     = "5.51.6"
+}
+
+variable "argocd_domain" {
+  description = "Domain for ArgoCD server"
+  type        = string
+  default     = "argocd.local"
+}
+
+variable "git_repo_url" {
+  description = "Git repository URL for GitOps"
+  type        = string
+  default     = "https://github.com/kfiros94/geodish-gitops.git"
+}
+
+variable "git_target_revision" {
+  description = "Git branch/tag to sync"
+  type        = string
+  default     = "HEAD"
+}
+
+variable "mongodb_username" {
+  description = "MongoDB username"
+  type        = string
+  default     = "geodish-user"
+}
+
+variable "mongodb_database" {
+  description = "MongoDB database name"
+  type        = string
+  default     = "geodish"
+}

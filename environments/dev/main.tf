@@ -237,26 +237,38 @@ resource "helm_release" "nginx_ingress" {
 
   depends_on = [module.eks, module.ebs_csi]
 }
-
 #==========================================
-# ArgoCD Module - Automated GitOps
+# Cert Manager Module
+#==========================================
+module "cert_manager" {
+  source = "../../modules/cert-manager"
+  
+  cert_manager_version = "v1.13.2"
+  acme_email          = "kfiramoyal@gmail.com"  # Your email for Let's Encrypt
+  
+  tags = local.common_tags
+  
+  depends_on = [helm_release.nginx_ingress]
+}
+#==========================================
+# ArgoCD Module
 #==========================================
 module "argocd" {
   source = "../../modules/argocd"
   
   argocd_namespace      = "argocd"
   app_namespace         = "devops-app"
-  argocd_chart_version  = "5.51.6"
-  argocd_domain         = "argocd.local"
+  argocd_chart_version  = var.argocd_chart_version
+  argocd_domain         = var.argocd_domain
   
-  git_repo_url         = "https://github.com/kfiros94/geodish-gitops.git"
-  git_target_revision  = "HEAD"
+  git_repo_url         = var.git_repo_url
+  git_target_revision  = var.git_target_revision
   
-  mongodb_username = "geodish-user"
+  mongodb_username = var.mongodb_username
   mongodb_password = var.mongodb_password
-  mongodb_database = "geodish"
+  mongodb_database = var.mongodb_database
   
   tags = local.common_tags
   
-  depends_on = [module.eks, module.ebs_csi, helm_release.nginx_ingress]
+    depends_on = [module.eks, module.ebs_csi, helm_release.nginx_ingress, module.cert_manager]
 }
