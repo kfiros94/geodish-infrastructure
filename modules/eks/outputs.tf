@@ -193,27 +193,27 @@ output "cloudwatch_log_group_arn" {
 # EKS Add-ons Status
 #==========================================
 
-output "cluster_addons" {
-  description = "Map of cluster add-on names to add-on properties"
-  value = {
-    vpc-cni = {
-      addon_name    = aws_eks_addon.vpc_cni.addon_name
-      addon_version = aws_eks_addon.vpc_cni.addon_version
-    }
-    coredns = {
-      addon_name    = aws_eks_addon.coredns.addon_name
-      addon_version = aws_eks_addon.coredns.addon_version
-    }
-    kube-proxy = {
-      addon_name    = aws_eks_addon.kube_proxy.addon_name
-      addon_version = aws_eks_addon.kube_proxy.addon_version
-    }
-    aws-ebs-csi-driver = var.enable_ebs_csi_driver ? {
-      addon_name    = aws_eks_addon.ebs_csi_driver[0].addon_name
-      addon_version = aws_eks_addon.ebs_csi_driver[0].addon_version
-    } : null
-  }
-}
+# output "cluster_addons" {
+#   description = "Map of cluster add-on names to add-on properties"
+#   value = {
+#     vpc-cni = {
+#       addon_name    = aws_eks_addon.vpc_cni.addon_name
+#       addon_version = aws_eks_addon.vpc_cni.addon_version
+#     }
+#     coredns = {
+#       addon_name    = aws_eks_addon.coredns.addon_name
+#       addon_version = aws_eks_addon.coredns.addon_version
+#     }
+#     kube-proxy = {
+#       addon_name    = aws_eks_addon.kube_proxy.addon_name
+#       addon_version = aws_eks_addon.kube_proxy.addon_version
+#     }
+#     aws-ebs-csi-driver = var.enable_ebs_csi_driver ? {
+#       addon_name    = aws_eks_addon.ebs_csi_driver[0].addon_name
+#       addon_version = aws_eks_addon.ebs_csi_driver[0].addon_version
+#     } : null
+#   }
+# }
 
 #==========================================
 # Application Deployment Information

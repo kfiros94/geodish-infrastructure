@@ -114,3 +114,23 @@ resource "kubernetes_storage_class" "ebs_mongodb" {
   # ⭐ UPDATE THIS: Wait for EBS CSI to be ready
   depends_on = [time_sleep.wait_for_ebs_csi]
 }
+
+# Storage Class for Grafana (with Retain policy)
+resource "kubernetes_storage_class" "ebs_grafana" {
+  metadata {
+    name = "ebs-grafana-retain"
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  allow_volume_expansion = true
+  reclaim_policy        = "Retain"  # ← This keeps the volume!
+  volume_binding_mode   = "WaitForFirstConsumer"
+
+  parameters = {
+    type      = "gp3"
+    encrypted = "true"
+    fsType    = "ext4"
+  }
+
+  depends_on = [time_sleep.wait_for_ebs_csi]
+}

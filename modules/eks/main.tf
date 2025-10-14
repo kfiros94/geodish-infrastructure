@@ -143,9 +143,9 @@ resource "aws_eks_node_group" "main" {
   
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
-  lifecycle {
-    ignore_changes = [scaling_config[0].desired_size]
-  }
+  # lifecycle {
+  #   ignore_changes = [scaling_config[0].desired_size]
+  # }
 }
 
 #==========================================
@@ -196,23 +196,23 @@ resource "aws_eks_addon" "kube_proxy" {
   depends_on = [aws_eks_node_group.main]
 }
 
-# EBS CSI Driver Add-on (for persistent volumes) - Fixed: Removed service_account_role_arn for now
-resource "aws_eks_addon" "ebs_csi_driver" {
-  count = var.enable_ebs_csi_driver ? 1 : 0
+# # EBS CSI Driver Add-on (for persistent volumes) - Fixed: Removed service_account_role_arn for now
+# resource "aws_eks_addon" "ebs_csi_driver" {
+#   count = var.enable_ebs_csi_driver ? 1 : 0
   
-  cluster_name                = aws_eks_cluster.main.name
-  addon_name                  = "aws-ebs-csi-driver"
-  addon_version               = data.aws_eks_addon_version.ebs_csi.version
-  resolve_conflicts_on_create = "OVERWRITE"
-  # Removed problematic service_account_role_arn line for now
-  # We'll configure IRSA separately after cluster is working
+#   cluster_name                = aws_eks_cluster.main.name
+#   addon_name                  = "aws-ebs-csi-driver"
+#   addon_version               = data.aws_eks_addon_version.ebs_csi.version
+#   resolve_conflicts_on_create = "OVERWRITE"
+#   # Removed problematic service_account_role_arn line for now
+#   # We'll configure IRSA separately after cluster is working
   
-  tags = merge(local.common_tags, {
-    Name = "${local.cluster_name}-ebs-csi-driver"
-  })
+#   tags = merge(local.common_tags, {
+#     Name = "${local.cluster_name}-ebs-csi-driver"
+#   })
   
-  depends_on = [aws_eks_node_group.main]
-}
+#   depends_on = [aws_eks_node_group.main]
+# }
 
 #==========================================
 # DATA SOURCES for Add-on Versions
@@ -236,11 +236,11 @@ data "aws_eks_addon_version" "kube_proxy" {
   most_recent        = true
 }
 
-data "aws_eks_addon_version" "ebs_csi" {
-  addon_name         = "aws-ebs-csi-driver"
-  kubernetes_version = aws_eks_cluster.main.version
-  most_recent        = true
-}
+# data "aws_eks_addon_version" "ebs_csi" {
+#   addon_name         = "aws-ebs-csi-driver"
+#   kubernetes_version = aws_eks_cluster.main.version
+#   most_recent        = true
+# }
 
 #==========================================
 # AWS-AUTH CONFIGMAP

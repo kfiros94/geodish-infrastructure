@@ -118,13 +118,12 @@ variable "node_group_instance_types" {
 variable "node_group_desired_capacity" {
   description = "Desired number of worker nodes (start with 2 for app + database)"
   type        = number
-  default     = 2
+  default     = 3  # ← Change from 2 to 3
   validation {
     condition     = var.node_group_desired_capacity >= 1 && var.node_group_desired_capacity <= 3
     error_message = "Desired capacity must be between 1 and 3 nodes as per requirements."
   }
 }
-
 variable "node_group_max_capacity" {
   description = "Maximum number of worker nodes (max 3 as per requirements)"
   type        = number
@@ -367,4 +366,15 @@ variable "mongodb_database" {
   description = "MongoDB database name"
   type        = string
   default     = "geodish"
+}
+
+#==========================================
+# Monitoring Configuration
+#==========================================
+
+variable "grafana_admin_password" {
+  description = "Admin password for Grafana UI"
+  type        = string
+  default     = "GeoDishGrafana123!"
+  sensitive   = true
 }

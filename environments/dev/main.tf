@@ -272,3 +272,23 @@ module "argocd" {
   
     depends_on = [module.eks, module.ebs_csi, helm_release.nginx_ingress, module.cert_manager]
 }
+#==========================================
+# Monitoring Module (Prometheus + Grafana)
+#==========================================
+module "monitoring" {
+  source = "../../modules/monitoring"
+  
+  monitoring_namespace    = "monitoring"
+  app_namespace          = "devops-app"
+  grafana_admin_password = var.grafana_admin_password
+  enable_alertmanager    = false  # Disable for dev to save resources
+  
+  prometheus_version      = "55.5.0"
+  retention_days         = 7
+  prometheus_storage_size = "10Gi"
+  grafana_storage_size   = "5Gi"
+  
+  tags = local.common_tags
+  
+  depends_on = [module.argocd, module.ebs_csi]
+}
