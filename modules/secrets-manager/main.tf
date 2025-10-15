@@ -26,7 +26,7 @@ resource "aws_secretsmanager_secret" "mongodb_password" {
   name        = "${var.project_name}-${var.environment}-mongodb-password"
   description = "MongoDB password for GeoDish application"
   
-  recovery_window_in_days = 0  # For dev - allows immediate deletion
+  recovery_window_in_days = 7  # For dev - allows immediate deletion
   
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-mongodb-password"
