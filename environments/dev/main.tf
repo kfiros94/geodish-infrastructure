@@ -272,53 +272,53 @@ module "argocd" {
   
     depends_on = [module.eks, module.ebs_csi, helm_release.nginx_ingress, module.cert_manager]
 }
-#==========================================
-# Monitoring Module (Prometheus + Grafana)
-#==========================================
-module "monitoring" {
-  source = "../../modules/monitoring"
+# #==========================================
+# # Monitoring Module (Prometheus + Grafana)
+# #==========================================
+# module "monitoring" {
+#   source = "../../modules/monitoring"
   
-  monitoring_namespace    = "monitoring"
-  app_namespace          = "devops-app"
-  grafana_admin_password = var.grafana_admin_password
-  enable_alertmanager    = false  # Disable for dev to save resources
+#   monitoring_namespace    = "monitoring"
+#   app_namespace          = "devops-app"
+#   grafana_admin_password = var.grafana_admin_password
+#   enable_alertmanager    = false  # Disable for dev to save resources
   
-  prometheus_version      = "55.5.0"
-  retention_days         = 7
-  prometheus_storage_size = "10Gi"
-  grafana_storage_size   = "5Gi"
+#   prometheus_version      = "55.5.0"
+#   retention_days         = 7
+#   prometheus_storage_size = "10Gi"
+#   grafana_storage_size   = "5Gi"
   
-  tags = local.common_tags
+#   tags = local.common_tags
   
-  depends_on = [module.argocd, module.ebs_csi]
-}
-#==========================================
-# Logging Module (EFK Stack)
-#==========================================
-module "logging" {
-  source = "../../modules/logging"
+#   depends_on = [module.argocd, module.ebs_csi]
+# }
+# #==========================================
+# # Logging Module (EFK Stack)
+# #==========================================
+# module "logging" {
+#   source = "../../modules/logging"
   
-  logging_namespace = "logging"
+#   logging_namespace = "logging"
   
-  # Elasticsearch configuration
-  elasticsearch_replicas      = 1
-  elasticsearch_storage_size  = "20Gi"
-  elasticsearch_memory_limit  = "2Gi"
-  elasticsearch_memory_request = "1Gi"
+#   # Elasticsearch configuration
+#   elasticsearch_replicas      = 1
+#   elasticsearch_storage_size  = "20Gi"
+#   elasticsearch_memory_limit  = "2Gi"
+#   elasticsearch_memory_request = "1Gi"
   
-  # Fluentd configuration
-  fluentd_memory_limit = "512Mi"
+#   # Fluentd configuration
+#   fluentd_memory_limit = "512Mi"
   
-  # Kibana configuration
-  kibana_replicas = 1
+#   # Kibana configuration
+#   kibana_replicas = 1
   
-  # Retention
-  retention_days = 7
+#   # Retention
+#   retention_days = 7
   
-  tags = local.common_tags
+#   tags = local.common_tags
   
-  depends_on = [module.monitoring, module.ebs_csi]
-}
+#   depends_on = [module.monitoring, module.ebs_csi]
+# }
 #==========================================
 # Secrets Manager Module
 #==========================================
