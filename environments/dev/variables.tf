@@ -280,7 +280,7 @@ variable "enable_logging_stack" {
 variable "geodish_ecr_repository_uri" {
   description = "ECR repository URI for GeoDish application"
   type        = string
-  default     = "893692751288.dkr.ecr.ap-south-1.amazonaws.com/geodish-app"
+  default     = "266995516631.dkr.ecr.ap-south-1.amazonaws.com/geodish-app"
 }
 
 variable "geodish_app_version" {

@@ -226,7 +226,7 @@ output "geodish_deployment_info" {
     cluster_endpoint       = aws_eks_cluster.main.endpoint
     node_group_name        = aws_eks_node_group.main.node_group_name
     nodes_in_private_subnets = true
-    ecr_repository         = "893692751288.dkr.ecr.ap-south-1.amazonaws.com/geodish-app"
+    ecr_repository         = "266995516631.dkr.ecr.ap-south-1.amazonaws.com/geodish-app"
     namespace_recommendation = "geodish-app"
   }
 }
