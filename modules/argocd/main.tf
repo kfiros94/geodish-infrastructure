@@ -53,7 +53,7 @@ resource "helm_release" "argocd" {
       global = {
         domain = var.argocd_domain
       }
-      
+
       server = {
         service = {
           type = "LoadBalancer"
@@ -62,7 +62,7 @@ resource "helm_release" "argocd" {
           "--insecure"
         ]
       }
-      
+
       configs = {
         params = {
           "server.insecure" = true
@@ -85,9 +85,9 @@ resource "kubernetes_secret" "mongodb_credentials" {
   }
 
   data = {
-  password         = var.mongodb_password
-  connectionString = "mongodb://${var.mongodb_username}:${var.mongodb_password}@geodish-mongodb-svc.${var.app_namespace}.svc.cluster.local:27017/${var.mongodb_database}?authSource=admin"
-}
+    password         = var.mongodb_password
+    connectionString = "mongodb://${var.mongodb_username}:${var.mongodb_password}@geodish-mongodb-svc.${var.app_namespace}.svc.cluster.local:27017/${var.mongodb_database}?authSource=admin"
+  }
 
   type = "Opaque"
 }
@@ -109,7 +109,7 @@ resource "kubectl_manifest" "root_app" {
   yaml_body = yamlencode({
     apiVersion = "argoproj.io/v1alpha1"
     kind       = "Application"
-    
+
     metadata = {
       name      = "geodish-root-app"
       namespace = var.argocd_namespace
@@ -117,21 +117,21 @@ resource "kubectl_manifest" "root_app" {
         "resources-finalizer.argocd.argoproj.io"
       ]
     }
-    
+
     spec = {
       project = "default"
-      
+
       source = {
         repoURL        = var.git_repo_url
         path           = "helm-charts/app-of-apps"
         targetRevision = var.git_target_revision
       }
-      
+
       destination = {
         server    = "https://kubernetes.default.svc"
         namespace = var.argocd_namespace
       }
-      
+
       syncPolicy = {
         automated = {
           prune    = true
